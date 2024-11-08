@@ -1,71 +1,75 @@
-﻿using COLORS.Models;
+﻿using COLORS.Helpers;
+using COLORS.Models;
 
 namespace COLORS.Modules
 {
-    public class ColorParser
+    public static class ColorParser
     {
-        private readonly Dictionary<string, ColorValue> variables;
 
-        public ColorParser()
+        public static List<ColorInstruction> Parse(string colorCode)
         {
-            variables = [];
-        }
-
-        public List<ColorInstruction> Parse(string colorCode)
-        {
+            var currentCommandName = string.Empty;
+            bool continueCommand = false;
+            bool continueVariableValue = false;
+            string CurrenVariableName = string.Empty;
+            List<ContainerValue> commandValues = [];
             var instructions = new List<ColorInstruction>();
             var tokens = colorCode.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            int i = 0;
 
-            while (i < tokens.Length)
+            foreach (var token in tokens)
             {
-                string token = tokens[i];
-
-                if (IsColorCommand(token.ToUpper()))
+                if (IsEndInstruction(token))
                 {
-                    var color = token.ToUpper();
-                    ColorValue left = ParseValue(tokens[i + 1]);
-                    ColorValue right = ParseValue(tokens[i + 2]);
-                    string? variableName = null;
-
-                    if (i + 3 < tokens.Length && IsVariableAssignment(tokens[i + 3]))
-                    {
-                        variableName = tokens[i + 3].Substring(1);
-                        i += 1; // Avanzar después de la asignación de variable
-                    }
-
-                    instructions.Add(new ColorInstruction(color, left, right, variableName));
-                    i += 3; // Avanzar después de la instrucción completa
+                    continueCommand = false;
+                    continueVariableValue = false;
+                    commandValues.Clear();
+                    instructions.Add(new ColorInstruction(currentCommandName, commandValues, CurrenVariableName));
                 }
-                else if (IsVariableDefinition(token))
+                else if (IsColorCommand(token.ToUpper()))
                 {
-                    string variableName = token.Substring(1);
-                    ColorValue value = ParseValue(tokens[i + 1]);
-                    variables[variableName] = value;
-                    i += 2; // Avanzar después de la definición de variable
+                    currentCommandName = token.ToUpper();
+                    continueCommand = true;
+                    continue;
                 }
-                else
+                else if (IsVariableDefinition(token) && !continueCommand)
                 {
-                    throw new ArgumentException($"Token inválido: {token}");
+                    continueVariableValue = true;
+                    CurrenVariableName = token;
+                    continue;
+                }
+
+                if (continueVariableValue)
+                {
+                    ContainerValue value = ParseValue(token, CurrenVariableName);
+                    StoregeManager.Variables.TryAdd(CurrenVariableName, value);
+                    continue;
+                }
+                if (IsVariableAssignment(token))
+                {
+                    continue;
+                }
+                if (continueCommand)
+                {
+                    commandValues.Add(ParseValue(token, currentCommandName));
                 }
             }
-
+            instructions.Add(new ColorInstruction(currentCommandName, commandValues, CurrenVariableName));
             return instructions;
         }
 
-        private ColorValue ParseValue(string token)
+        private static ContainerValue ParseValue(string value, string? Name)
         {
-            if (double.TryParse(token, out double number))
+            if (decimal.TryParse(value, out decimal number))
             {
-                return new ColorValue(number, "GRAY");
+                return new ContainerValue(Name, number, number.GetType());
             }
-            else if (variables.TryGetValue(token, out var variable))
+            else if (StoregeManager.Variables.TryGetValue(value, out var variable))
             {
                 return variable;
             }
             else
             {
-                throw new ArgumentException($"Valor inválido: {token}");
+                return new ContainerValue(Name, value, value.GetType());
             }
         }
 
@@ -86,6 +90,10 @@ namespace COLORS.Modules
         private static bool IsVariableAssignment(string token)
         {
             return token.StartsWith('=');
+        }
+        private static bool IsEndInstruction(string token)
+        {
+            return token.StartsWith(';') || token.StartsWith(',');
         }
     }
 }

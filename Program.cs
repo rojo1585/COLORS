@@ -1,4 +1,11 @@
-﻿using COLORS.UI;
+﻿using COLORS;
+using COLORS.Extensions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
-var ui = new ColorProgramUI();
-ui.Start();
+var host = Host.CreateDefaultBuilder(args)
+        .AddServices()
+        .Build();
+
+var app = host.Services.GetRequiredService<App>();
+app.Run();
