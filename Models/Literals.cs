@@ -31,8 +31,9 @@ public static class Literals
 
         cast = color.ToUpper() switch
         {
-            "BLUE" or "AZUL" => "BLUE",
-            "RED" or "ROJO" => "RED",
+            "AZUL" or "BLUE" => "BLUE",
+            "ROJO" or "RED" => "RED",
+            "AMARILLO" or "YELLOW" => "YELLOW",
             _ => ""
         };
 
