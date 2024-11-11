@@ -25,16 +25,16 @@ namespace COLORS.Modules
                     commandValues.Clear();
                     instructions.Add(new ColorInstruction(currentCommandName, commandValues, CurrenVariableName));
                 }
-                else if (IsColorCommand(token.ToUpper()))
+                else if (Literals.TryGetCastColor(token, out string cast))
                 {
-                    currentCommandName = token.ToUpper();
+                    currentCommandName = cast;
                     continueCommand = true;
                     continue;
                 }
-                else if (IsVariableDefinition(token) && !continueCommand)
+                else if (IsVariableDefinition(token.ToUpper()) && !continueCommand)
                 {
                     continueVariableValue = true;
-                    CurrenVariableName = token;
+                    CurrenVariableName = token.ToUpper();
                     continue;
                 }
 
@@ -75,11 +75,7 @@ namespace COLORS.Modules
 
         private static bool IsColorCommand(string token)
         {
-            return token switch
-            {
-                "RED" or "AZUL" or "VERDE" or "AMARILLO" => true,
-                _ => false
-            };
+            return Literals.ColorsVariants.Exists(i => i.Exists(i => i == token));
         }
 
         private static bool IsVariableDefinition(string token)
