@@ -10,6 +10,7 @@ namespace COLORS.Factory
             return color switch
             {
                 "RED" => new SumCommand(),
+                "BLUE" => new MultiplyCommand(),
                 _ => throw new ArgumentException($"Comando de color {color} no reconocido")
             };
         }
