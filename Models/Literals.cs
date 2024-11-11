@@ -5,18 +5,16 @@ public static class Literals
     public enum Color
     {
         Red,
-        Blue
+        Blue,
+        Yellow
     }
 
     private static readonly Dictionary<Color, string> colorsDescriptions = new()
     {
         { Color.Red , "RED" },
-        { Color.Blue, "BLUE"}
+        { Color.Blue, "BLUE"},
+        { Color.Yellow, "YELLOW"}
     };
-    public static readonly List<List<string>> ColorsVariants = [
-        ["BLUE", "Blue", "blue","AZUL","Azul", "azul"],
-        ["RED", "Red", "red","ROJO","Rojo", "rojo"]
-        ];
     public static Dictionary<Color, string> GetColorsDescriptions()
     {
         return colorsDescriptions;

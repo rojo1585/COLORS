@@ -11,6 +11,7 @@ namespace COLORS.Factory
             {
                 "RED" => new SumCommand(),
                 "BLUE" => new MultiplyCommand(),
+                "YELLOW" => new SubtractCommand(),
                 _ => throw new ArgumentException($"Comando de color {color} no reconocido")
             };
         }

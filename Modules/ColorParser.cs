@@ -73,11 +73,6 @@ namespace COLORS.Modules
             }
         }
 
-        private static bool IsColorCommand(string token)
-        {
-            return Literals.ColorsVariants.Exists(i => i.Exists(i => i == token));
-        }
-
         private static bool IsVariableDefinition(string token)
         {
             return token.StartsWith('@');
